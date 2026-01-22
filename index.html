@@ -72,29 +72,55 @@ function solarToLunar(date) {
 /* ========= 生日定义 ========= */
 const birthdays = [
   { name: "小女儿", month: 5, day: 18 },
-  { name: "大女儿", month: 10, day: 14 }
+  { name: "大女儿", month: 10, day: 14 },
+  { name: "九月初一生日", month: 9, day: 1 }
 ];
+
 
 /* ========= 检测前一天提醒 ========= */
 (function(){
   const today = new Date();
-  const lunar = solarToLunar(today);
+  const lunarToday = solarToLunar(today);
+
+  // 明天
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const lunarTomorrow = solarToLunar(tomorrow);
+
   const key = today.toISOString().slice(0,10);
 
   birthdays.forEach(b => {
-    if (!lunar.isLeap &&
-        lunar.month === b.month &&
-        lunar.day === b.day - 1 &&
-        localStorage.getItem(key + b.name) !== "sent") {
 
+    /* ========= 正常生日提醒（提前一天） ========= */
+    if (
+      !lunarToday.isLeap &&
+      lunarToday.month === b.month &&
+      lunarToday.day === b.day - 1 &&
+      localStorage.getItem(key + b.name) !== "sent"
+    ) {
       new Notification("🎂 生日提醒", {
         body: `明天是${b.name}的生日 ❤️`
       });
 
       localStorage.setItem(key + b.name, "sent");
     }
+
+    /* ========= 🔧 测试用：假设“明天就是农历生日” ========= */
+    if (
+      lunarTomorrow.month === b.month &&
+      lunarTomorrow.day === b.day &&
+      localStorage.getItem(key + b.name + "_test") !== "sent"
+    ) {
+      new Notification("🧪 测试提醒", {
+        body: `【测试】如果明天是${b.name}的生日，今天会提醒`
+      });
+
+      localStorage.setItem(key + b.name + "_test", "sent");
+    }
+
   });
 })();
+
 </script>
 </body>
 </html>
